@@ -1,18 +1,18 @@
 ## Consul agent (0.6.0) Docker image
 
-Based on: digiwhite1980/consul (https://hub.docker.com/r/digiwhite1980/consul/)
+Based on: digiwhite/consul (https://hub.docker.com/r/digiwhite/consul/)
 
-This docker image is based on the docker image coming from digiwhite1980/consul. Consul 0.6.0 is used based on Alpine 3.3.
+This docker image is based on the docker image coming from digiwhite/consul. Consul 0.6.0 is used based on Alpine 3.3.
 
-The following documentation us part of the digiwhite1980/consul docker image taken from README.md.
+The following documentation us part of the digiwhite/consul docker image taken from README.md.
 
 Getting the container
 ```shell
-$ docker pull digiwhite1980/consul
+$ docker pull digiwhite/consul
 
 # Just trying out Consul
 ```shell
-$ docker run -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node1 digiwhite1980/consul -server -bootstrap
+$ docker run -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h node1 digiwhite/consul -server -bootstrap
 
 Our recommended interface is HTTP using curl:
 ```shell
@@ -35,7 +35,7 @@ Here we start the first node not with -bootstrap, but with -bootstrap-expect 3,
 which will wait until there are 3 peers connected before self-bootstrapping and becoming a working cluster.
 
 ```shell
-$ docker run -d --name node1 -h node1 digiwhite1980/consul -server -bootstrap-expect 3
+$ docker run -d --name node1 -h node1 digiwhite/consul -server -bootstrap-expect 3
 
 We can get the container's internal IP by inspecting the container. We'll put it in the env var JOIN_IP.
 ```shell
@@ -43,18 +43,18 @@ $ JOIN_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' node1)"
 
 Then we'll start node2 and tell it to join node1 using $JOIN_IP:
 ```shell
-$ docker run -d --name node2 -h node2 digiwhite1980/consul -server -join $JOIN_IP
+$ docker run -d --name node2 -h node2 digiwhite/consul -server -join $JOIN_IP
 
 Now we can start node3 the same way:
 ```shell
-$ docker run -d --name node3 -h node3 digiwhite1980/consul -server -join $JOIN_IP
+$ docker run -d --name node3 -h node3 digiwhite/consul -server -join $JOIN_IP
 
 We now have a real three node cluster running on a single host. Notice we've also named the containers after their internal hostnames / node names.
 
 We haven't published any ports to access the cluster, but we can use that as an excuse to run a fourth agent node in "client" mode (dropping the -server). 
 This means it doesn't participate in the consensus quorum, but can still be used to interact with the cluster. It also means it doesn't need disk persistence.
 ```shell
-$ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp --name node4 -h node4 progrium/consul -join $JOIN_IP
+$ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp --name node4 -h node4 digiwhite/consul -join $JOIN_IP
 
 Now we can interact with the cluster on those published ports and, if you want, play with killing, adding, and restarting nodes to see how the cluster handles it.
 
@@ -78,7 +78,7 @@ $ docker run -d -h node1 -v /mnt:/data \
     -p 10.0.1.1:8400:8400 \
     -p 10.0.1.1:8500:8500 \
     -p 172.17.42.1:53:53/udp \
-    progrium/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
+    digiwhite/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
 
 On the second host, we'd run the same thing, but passing a -join to the first node's IP. Let's say the private IP for this host is 10.0.1.2:
 ```shell
@@ -91,7 +91,7 @@ $ docker run -d -h node2 -v /mnt:/data  \
     -p 10.0.1.2:8400:8400 \
     -p 10.0.1.2:8500:8500 \
     -p 172.17.42.1:53:53/udp \
-    progrium/consul -server -advertise 10.0.1.2 -join 10.0.1.1
+    digiwhite/consul -server -advertise 10.0.1.2 -join 10.0.1.1
 
 And the third host with an IP of 10.0.1.3:
 ```shell
@@ -104,7 +104,7 @@ $ docker run -d -h node3 -v /mnt:/data  \
     -p 10.0.1.3:8400:8400 \
     -p 10.0.1.3:8500:8500 \
     -p 172.17.42.1:53:53/udp \
-    progrium/consul -server -advertise 10.0.1.3 -join 10.0.1.1
+    digiwhite/consul -server -advertise 10.0.1.3 -join 10.0.1.1
 
 That's it! Once this last node connects, it will bootstrap into a cluster. You now have a working cluster running in production on a private network.
 
@@ -114,7 +114,7 @@ Since the docker run command to start in production is so long, a command is ava
 Running with cmd:run <advertise-ip>[::<join-ip>[::client]] [docker-run-args...] will output an opinionated, 
 but customizable docker run command you can run in a subshell. For example:
 ```shell
-$ docker run --rm progrium/consul cmd:run 10.0.1.1 -d
+$ docker run --rm digiwhite/consul cmd:run 10.0.1.1 -d
 >>> outputs
 eval docker run --name consul -h $HOSTNAME     \
     -p 10.0.1.1:8300:8300 \
@@ -126,13 +126,13 @@ eval docker run --name consul -h $HOSTNAME     \
     -p 10.0.1.1:8500:8500 \
     -p 172.17.42.1:53:53/udp \
     -d     \
-    progrium/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
+    digiwhite/consul -server -advertise 10.0.1.1 -bootstrap-expect 3
 
 By design, it will set the hostname of the container to your host hostname, it will name the container consul (though this can be overridden), 
 it will bind port 53 to the Docker bridge, and the rest of the ports on the advertise IP. If no join IP is provided, 
 it runs in -bootstrap-expect mode with a default of 3 expected peers. Here is another example, specifying a join IP and setting more docker run arguments:
 ```shell
-$ docker run --rm progrium/consul cmd:run 10.0.1.1::10.0.1.2 -d -v /mnt:/data
+$ docker run --rm digiwhite/consul cmd:run 10.0.1.1::10.0.1.2 -d -v /mnt:/data
 >>> outputs
 eval docker run --name consul -h $HOSTNAME     \
     -p 10.0.1.1:8300:8300 \
@@ -144,7 +144,7 @@ eval docker run --name consul -h $HOSTNAME     \
     -p 10.0.1.1:8500:8500 \
     -p 172.17.42.1:53:53/udp \
     -d -v /mnt:/data \
-    progrium/consul -server -advertise 10.0.1.1 -join 10.0.1.2
+    digiwhite/consul -server -advertise 10.0.1.1 -join 10.0.1.2
 
 You may notice it lets you only run with bootstrap-expect or join, not both. 
 Using cmd:run assumes you will be bootstrapping with the first node and expecting 3 nodes. 
@@ -152,7 +152,7 @@ You can change the expected peers before bootstrap by setting the EXPECT environ
 
 To use this convenience, you simply wrap the cmd:run output in a subshell. Run this to see it work:
 ```shell
-$ $(docker run --rm progrium/consul cmd:run 127.0.0.1 -it)
+$ $(docker run --rm digiwhite/consul cmd:run 127.0.0.1 -it)
 
 # Client flags
 
@@ -161,7 +161,7 @@ Client nodes allow you to keep growing your cluster without impacting the perfor
 
 To boot a client node using the runner command, append the string ::client onto the <advertise-ip>::<join-ip> argument. For example:
 ```shell
-$ docker run --rm progrium/consul cmd:run 10.0.1.4::10.0.1.2::client -d
+$ docker run --rm digiwhite/consul cmd:run 10.0.1.4::10.0.1.2::client -d
 
 Would create the same output as above but without the -server consul argument.
 
@@ -220,90 +220,3 @@ There is an issue when you restart a node as a new container with the same publi
 
 License
 BSD
-
-
-
-
-
-
-
-
-
-This NodeJS image supports multiple options including:
-- GIT repo sync support
-- Newrelic support
-
-# NodeJS git / ADD through Dockerfile
-It is possible to clone this image and inject the JS code through an ADD option in the Dockerfile.
-When using the ADD option, please make sure to use NODEJS_PATH var to meet the path where the source code is located.
-
-A better solution would be to pull the source code from GIT using a SSH key. If applicable: please make sure the private key does 
-not contain a password. Also be sure to use "ADD ssh-key /root/.ssh/ssh-git" or the git pull command will not work.
-
-# package.json
-The script supports package.json dependencies. If a packege.json file is available, npm will run the install command to 
-meet the required dependencies.
-
-# NodeJS version
-When using the NODEJS_VERSION environment variable the user may chose the NodeJS version he wishes. latest en stable are also possible.
-
-# NodeJS wrapper script options:
-```bash
-##############################################################################
-# Default Docker image for NodeJS
-# ----------------------------------------------------------------------------
-#
-# Mandatory environment vars:
-# - NODEJS_PATH (Only when not using GIT_REPO)
-#       Path to the nodejs application files.
-#       This path is set automatically when using GIT
-# - NODEJS_EXEC
-#       NodeJS application executable (app.js)
-#
-# Optional environment vars:
-# - NODEJS_VERSION
-#       Supports multiple node versions:
-#       0.x.x
-#       latest
-#       stable
-# - EXEC_CMD
-#       executable to use [nodejs | npm]
-# - GIT_REPO
-#       GIT repo where application data is stored
-#       Currently this option is mandatory.
-#	When using SSH please make sure /root/.ssh/ssh-git is available
-# - GIT_PTH
-#       Path within the GIT_REPO where executable NodeJS file is stored
-#       If not given, . is used.
-# - GIT_LOG
-#       Path to git log
-#
-# - NEWRELIC
-#       If set to 1 the newrelic agent will be started
-# - NEWRELIC_LICENSE
-#       This will set the newrelic license
-```
-
-# Run examples
-
-```shell
-docker run -d --name nodejs -p 80:80 \
-	-e GIT_REPO=git@github.com:digiwhite1980/nodejs.git \
-	-e GIT_PATH=path/to \
-	-e NODEJS_EXEC=app.js \
-	-e NODEJS_VERSION=latest \
-	digiwhite/nodejs
-
-docker run -d --name nodejs -p 80:80 \
-	-e GIT_REPO=git@github.com:digiwhite1980/nodejs.git \
-	-e GIT_PATH=path/to \
-	-e NODEJS_EXEC=app.js \
-	-e NODEJS_VERSION=stable \
-	-e NEWRELIC=1 \
-	-e NEWRELIC_LICENSE={key} \
-	-e TZ={you timezone} \
-	digiwhite/nodejs
-```	
-
-# Tracking
-2015-09-24: initial version
