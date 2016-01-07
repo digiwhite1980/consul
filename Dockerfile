@@ -1,6 +1,6 @@
 FROM alpine:3.3
 
-MAINTAINER Raymond.Otto@RTL.nl
+MAINTAINER Raymond Otto <otto@digiwhite.nl>
 
 ENV TZ=Europe/Amsterdam
 
