@@ -1,10 +1,10 @@
 ## Consul agent (0.6.0) Docker image
 
-Based on: digiwhite/consul (https://hub.docker.com/r/digiwhite/consul/)
+Based on: progrium/consul (https://hub.docker.com/r/progrium/consul/)
 
-This docker image is based on the docker image coming from digiwhite/consul. Consul 0.6.0 is used based on Alpine 3.3.
+This docker image is based on the docker image coming from progrium/consul. Consul 0.6.0 is used based on Alpine 3.3.
 
-The following documentation us part of the digiwhite/consul docker image taken from README.md.
+The following documentation us part of the progrium/consul docker image taken from README.md.
 
 Getting the container
 ```shell
