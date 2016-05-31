@@ -4,8 +4,8 @@ MAINTAINER Raymond Otto <otto@digiwhite.nl>
 
 ENV TZ=Europe/Amsterdam
 
-ENV CONSUL_VER=0.6.0
-ENV DOCKER_VER=1.8.3
+ENV CONSUL_VER=0.6.4
+ENV DOCKER_VER=1.9.1
 
 RUN apk add --update bash curl
 
