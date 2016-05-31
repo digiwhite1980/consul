@@ -1,8 +1,8 @@
-## Consul agent (0.6.0) Docker image
+## Consul agent (0.6.4) Docker image
 
 Based on: progrium/consul (https://hub.docker.com/r/progrium/consul/)
 
-This docker image is based on the docker image coming from progrium/consul. Consul 0.6.0 is used based on Alpine 3.3.
+This docker image is based on the docker image coming from progrium/consul. Consul 0.6.4 is used based on Alpine 3.3.
 
 The following documentation us part of the progrium/consul docker image taken from README.md.
 
